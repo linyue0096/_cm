@@ -1,0 +1,46 @@
+import numpy as np #匯入numoy,用於建立矩陣與計算特徵值(求跟)
+import math
+
+def root(c):  #TOL 用於浮點比較的容差,避免直接與0比較造成誤判
+    TOL=1e-10
+    n = len(c) - 1  #n是多項式的最高次數:輸入係數列表長度-1
+
+    if n < 0:  #若列表長度小於1(n<0),表示輸入為空列表,非有效多項式
+        return "輸入列表為空,不是多項式" 
+    
+    if n == 0: # 若常數項c0不為0，則無根(例如 P(x)=5)
+        c0 = c[0]  #若常數項不為0則無根;若常數項為0,則對所有x都成立(無窮跟)
+        if abs(c0) > TOL:
+            return"no roots"
+        else:
+            return "所有x都為根"
+    elif n ==1:
+        c1 = c[0] #最高次係數c1
+        c0 = c[1] #常數項c0
+        if abs(c1) < TOL:
+            return "最高次數接近0, 無法除以0"
+        return[-c0 / c1] #返回唯一根 x = -c_0 / c_1
+    else:
+        c_n = c[0]  #最高次係數 c_n
+        if abs(c_n) < TOL: #最高次係數是否接近 0
+            return f"最高係數接近0, 實際次數為 n={n-1}, 重新輸入係數"
+        
+    c_norm=[ci/c_n for ci in c] #係數標準化(c_n = 1)
+    print(f"標準化後的係數: {c_norm}")
+
+    # 構造伴隨矩陣(Companion Matrix)，大小 n x n
+    # 必須使用 dtype=complex 以確保矩陣計算能夠處理所有複數根
+    companion = np.zeros((n, n), dtype=complex) 
+
+    # 在主對角線下方放置 1，構成伴隨矩陣的標準形式(設置次對角線1, 0, 0, ... )
+    companion[1:, :-1] = np.eye(n-1)  
+
+    # 設置第一行 [-a_{n-1}, -a_{n-2}, ..., -a_0]
+    # c_norm[1:] 恰好是 [a_{n-1}, a_{n-2}, ..., a_0]
+    companion[0, :] = -np.array(c_norm[1:]) 
+   
+    roots=np.linalg.eigvals(companion) # 求解特徵值(Eigenvalues)，這些特徵值就是多項式的根
+    return roots
+
+coeffs = [-8, 14, -7, 1]
+print(root(coeffs))
