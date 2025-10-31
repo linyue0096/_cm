@@ -25,7 +25,7 @@ def root(c):
             return f"最高係數接近0, 實際次數為 n={n-1}, 重新輸入係數"
 
     c_norm=[ci/c_n for ci in c]
-        print(f"標準化後的係數: {c_norm}")
+    print(f"標準化後的係數: {c_norm}")
 
     companion = np.zeros((n, n), dtype=complex)
     companion[1:, :-1] = np.eye(n-1)
