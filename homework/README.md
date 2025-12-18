@@ -36,10 +36,11 @@ def theorem1(f, x):
 ** 這是整個程式碼的核心 **
 1. 用df()去對它做微分，理論上應該得到原函數f(x)。
 2. 執行後，兩者的差並設下誤差條件（小於 0.01）。
+
 - 步驟四：以範例函數測試
 ```python
 def f(x):
-   return x**3
+   return x**3                                                                                  
 print('df(f, 2)=', df(f, 2))
 print('integral(f, 0, 2)=', integral(f, 0, 2))
 theorem1(f, 2)
@@ -86,64 +87,203 @@ print (df(2,3,2))
 
 -----------------------------------------------------
 ## [家庭作業 3 (請寫三次三次插圖式的根)]
+
+
+-----------------------------------------------------
 ## [家庭作業 5 (請寫出有限體)]
-* 完成方法:[使用GPT]()
-```python
-  def __init__(self, n):
-        if n <= 0:
-            raise ValueError("n 必須是正整數")
-        self.n = n
-        self.elements = list(range(n))
+* 完成方法:[使用GPT1](https://chatgpt.com/share/6922c855-b214-800d-987c-8fedb0458f4e)
+          [使用GPT2](https://chatgpt.com/share/6922e95d-5174-800d-9018-8f6274c7e5a8)
+          [使用Gemini]()
+* 說明:甚麼是有限體?有限體是一個具有有限多個元素的代數結構，它滿足體的定義。(最簡單的有限體是GF(p)，其中p是一個質數)
+
+- 步驟一:判斷n是否為質數 (因:體的大小p必須為質數)
+```python 
+def is_prime(n):  #判斷n是質數
+    if n < 2:
+        return False
+    if n == 2:
+        return True
+    if n % 2 == 0:
+        return False
+    i = 3
+    while i * i <= n: 
+        if n % i == 0:
+            return False
+        i += 2
+    return True
 ```
-1. 建立有限加法群的物件,n代表群的大小
-2. elements存放所有元素的集合, 
+
+- 步驟二:基本的加減乘負運算
+```python
+class GFElement:
+    """GF(p) 元素"""
+    def __init__(self, value, field: 'FiniteField'):
+        self.value = value % field.p
+        self.field = field
+
+    def __repr__(self):
+        return f"GF({self.field.p})[{self.value}]"
+```
+1. 類別定義與初始化:定義了類別本身，在建立物件時初始化它的值，和它的有限域，確保其值始終保持在正確的範圍內
 
 ```python
-   def cayley_table(self):
-        print(f"\n加法 Cayley 表  Z_{self.n}：")
-        print("     " + " ".join([f"{b:3}" for b in self.elements]))
-        print("     " + "---"*self.n)
-        for a in self.elements:
-            row = [self.add(a, b) for b in self.elements]
-            print(f"{a:3} | " + " ".join([f"{x:3}" for x in row]))
+    def __add__(self, other):
+        other_val = other.value if isinstance(other, GFElement) else other
+        return GFElement((self.value + other_val) % self.field.p, self.field)
+    __radd__ = __add__
+    def __sub__(self, other):
+        other_val = other.value if isinstance(other, GFElement) else other
+        return GFElement((self.value - other_val) % self.field.p, self.field)
+
+    def __rsub__(self, other):
+        return GFElement((other - self.value) % self.field.p, self.field)
+
+    def __mul__(self, other):
+        other_val = other.value if isinstance(other, GFElement) else other
+        return GFElement((self.value * other_val) % self.field.p, self.field)
+    __rmul__ = __mul__
+
+    def __neg__(self):
+        return GFElement(-self.value % self.field.p, self.field)
+
+    def __truediv__(self, other):
+        other_val = other.value if isinstance(other, GFElement) else (other % self.field.p)
+        if other_val == 0:
+            raise ZeroDivisionError("division by zero in finite field")
+        inv = pow(other_val, -1, self.field.p)
+        return GFElement((self.value * inv) % self.field.p, self.field)
+
+    def __rtruediv__(self, other):
+        if self.value == 0:
+            raise ZeroDivisionError("division by zero in finite field")
+        inv = pow(self.value, -1, self.field.p)
+        return GFElement((other * inv) % self.field.p, self.field)
+
+    def __eq__(self, other):
+        if isinstance(other, GFElement):
+            # 修正：比較 p 而非 field 物件
+            return self.value == other.value and self.field.p == other.field.p
+        return self.value == (other % self.field.p)
 ```
-1. 群的運算表
-2. a=列, b=欄, Cayley表驗證群是否封閉
+1. 做加法add/radd(右加法)
+2. 
+
+
 
 ```python
-   def check_group_axioms(self):
-        e = self.identity()
+class Fin  iteField:
+    """有限體 GF(p)"""
+    def __init__(self, p):
+        if not is_prime(p):
+            raise ValueError(f"{p} 不是質數，無法建構 GF(p)")
+        self.p = p
+        self.add_elements = [GFElement(i, self) for i in range(p)]
+        self.mul_elements = [GFElement(i, self) for i in range(1, p)]
+
+    def element(self, value):
+        return GFElement(value, self)
+
+    # ====== 群公理檢測 ======
+    def test_add_group(self):
+        results = {
+            "closure": all(a + b in self.add_elements for a in self.add_elements for b in self.add_elements),
+            "associativity": all((a + b) + c == a + (b + c) 
+                                 for a in self.add_elements for b in self.add_elements for c in self.add_elements),
+            "identity": all(a + self.element(0) == a for a in self.add_elements),
+            "inverse": all(a + (-a) == self.element(0) for a in self.add_elements)
+        }
+        return results
+
+    def test_mul_group(self):
+        results = {
+            "closure": all(a * b in self.mul_elements for a in self.mul_elements for b in self.mul_elements),
+            "associativity": all((a * b) * c == a * (b * c)
+                                 for a in self.mul_elements for b in self.mul_elements for c in self.mul_elements),
+            "identity": all(a * self.element(1) == a for a in self.mul_elements),
+            # 修正：真正檢查逆元存在
+            "inverse": all(
+                any(a * b == self.element(1) for b in self.mul_elements)
+                for a in self.mul_elements
+            )
+        }
+        return results
+
+    def test_distributive_law(self):
+        # 修正：a 必須遍歷所有元素（含 0）
+        return all(
+            a * (b + c) == a * b + a * c 
+            for a in self.add_elements   # ← 關鍵修正！
+            for b in self.add_elements 
+            for c in self.add_elements
+        )
 ```
-* 檢查群公理
-
-
 ```python
-   for a in self.elements:
-            for b in self.elements:
-                if self.add(a, b) not in self.elements:
-                    return False, "未滿足封閉性"
+if __name__ == "__main__":
+    # 安全讀取質數 p
+    while True:
+        try:
+            user_input = input("請輸入質數 p 來建立 GF(p)： ").strip()
+            if not user_input:
+                print("錯誤：輸入不能為空，請輸入一個質數。")
+                continue
+            p = int(user_input)
+            break
+        except ValueError:
+            print("錯誤：請輸入一個有效的整數！")
+    
+    try:
+        F = FiniteField(p)
 
-   for a in self.elements:
-            for b in self.elements:
-                for c in self.elements:
-                    if self.add(self.add(a, b), c) != self.add(a, self.add(b, c)):
-                        return False, "未滿足結合律"
+        print("\n--- 加法群公理檢測 ---")
+        for prop, ok in F.test_add_group().items():
+            print(f"{prop}: {ok}")
 
-   for a in self.elements:
-            if self.add(a, e) != a or self.add(e, a) != a:
-                return False, "未找到單位元"
+        print("\n--- 乘法群公理檢測 ---")
+        for prop, ok in F.test_mul_group().items():
+            print(f"{prop}: {ok}")
+ 
+        print("\n--- 分配律檢測 ---")
+        print("分配律成立:", F.test_distributive_law())
 
-   for a in self.elements:
-            if self.add(a, self.inverse(a)) != e:
-                return False, "沒有反元素"
-   return True, "已滿足所有群公理"
-```
-1. 檢查封閉性 : **[a*b mob p]** (結果永遠不會為0,除非a or b為0,但0不會存在於集合裡)
-2. 檢查結合律 : **(ab)c=a(bc)**
-3. 檢查單位元 : **a*1=a**
-4. 檢查反元素 : **a^(p - 1)**
-5. 最後返回結果
+        # 讀取 a, b, c
+        def safe_input(prompt):
+            while True:
+                try:
+                    val = input(prompt).strip()
+                    if val == '':
+                        print("輸入不能為空，請重新輸入。")
+                        continue
+                    return int(val)
+                except ValueError:
+                    print("請輸入整數！")
 
+        a_val = safe_input("\n輸入 a: ")
+        b_val = safe_input("輸入 b: ")
+        c_val = safe_input("輸入 c: ")
+
+        a = F.element(a_val)
+        b = F.element(b_val)
+        c = F.element(c_val)
+
+        print("\n--- 運算示範 ---")
+        print(f"a = {a}, b = {b}, c = {c}")
+        print(f"a + b = {a + b}")
+        print(f"a - b = {a - b}")
+        print(f"a * b = {a * b}")
+        if b.value != 0:
+            print(f"a / b = {a / b}")
+        else:
+            print("b = 0，無法進行除法")
+        print(f"a + b * c = {a + b * c}")
+        print(f"(a + b) * c = {(a + b) * c}")
+        print(f"-a = {-a}")
+
+    except ValueError as e:
+        print("錯誤:", e)
+    except ZeroDivisionError as e:
+        print("錯誤:", e)
+    except Exception as e:
+        print("未預期錯誤:", e)
 
 ## [家庭作業 9 (資訊理論)]
 * 完成方法: 參考教授
