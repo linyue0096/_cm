@@ -87,8 +87,60 @@ print (df(2,3,2))
 
 -----------------------------------------------------
 ## [家庭作業 3 (請寫三次三次插圖式的根)]
+* 完成方法:原創
+* 這是一個二次方程跟x**2+bx+c=0，a、b、c的變數不能為0。
+**[(-b+cmath.sqrt(ds))/(2*a)]**
+**[(-b-cmath.sqrt(ds))/(2*a)]**
+- 步驟一：係數標準化
+先將方程式的領導係數 $a$ 化為 1。若 $a=0$ 則不是三次方程式，需拋出錯誤。
+```python
+def root3(a,b,c,d):
+    if a==0:
+        raise ValueError("係數a不能為0")
+    b /= a
+    c /= a
+    d /= a
+```
+將一般式轉化為首一多項式，方便後續代入公式。
 
+- 步驟二：轉換為缺項三次方程式
+透過變數變換 $x = y - \frac{b}{3}$，消去$x^2$ 項，將方程式簡化為$y^3 + py + q = 0$ 的形式
+```python
+p = c - (b**2)/3
+    q = (2*b**3)/27 - (b*c)/3 + d
+```
+- 數學原理:$p = \frac{3ac - b^2}{3a^2}$ 
+$q = \frac{2b^3 - 9abc + 27a^2d}{27a^3}$
 
+- 步驟三：計算判別式與卡爾丹諾解
+利用判別式 $\Delta$ 計算 $u$ 與 $v$ 的立方值，並引入單位根 $\omega$ 來求出所有解
+```python
+delta = (q/2)**2 + (p/3)**3
+    sqrt_delta = cmath.sqrt(delta)
+    u_cub = (-q/2 + sqrt_delta)
+    v_cub = (-q/2 - sqrt_delta)
+    u = u_cub ** (1/3)
+    v = v_cub ** (1/3)
+
+    omega = [
+        1, 
+        -0.5 + cmath.sqrt(3)/2*1j,
+        -0.5 - cmath.sqrt(3)/2*1j
+    ]
+```
+1. 判別式: $\Delta = (\frac{q}{2})^2 + (\frac{p}{3})^3$，決定了根的性質（實根或複數根）。
+2. 卡爾丹諾公式: 解的形式為 $y = u + v$，其中 $u = \sqrt[3]{-\frac{q}{2} + \sqrt{\Delta}}$，$v = \sqrt[3]{-\frac{q}{2} - \sqrt{\Delta}}$。
+3. 單位根: 由於複數開立方會有三個根，我们需要乘上 $1, \omega, \omega^2$ 來組合出三個解
+- 步驟四：組合還原根並驗證
+算出的 $y$ 值還原回 $x$ (即 $x = y - \frac{b}{3}$)
+```python
+roots= []
+    for k in range(3):
+        y = u * omega[k] + v * omega[(3-k) % 3] 
+        x = y - b/3
+        roots.append(x)
+    return roots
+```
 -----------------------------------------------------
 ## [家庭作業 5 (請寫出有限體)]
 * 完成方法:[使用GPT1](https://chatgpt.com/share/6922c855-b214-800d-987c-8fedb0458f4e)
@@ -165,13 +217,12 @@ class GFElement:
             return self.value == other.value and self.field.p == other.field.p
         return self.value == (other % self.field.p)
 ```
-1. 做加法add/radd(右加法)
-2. 
-
-
-
+1. 封閉性維持：所有的加減乘算完後，都會立刻做 % p 運算，確保結果仍在有限體內。
+2. 運算子重載 (Operator Overloading)：透過定義 __add__, __mul__ 等方法，讓我們可以直接用 +, *, / 符號來操作有限體元素。
+3. 除法定義：有限體沒有一般的除法，而是乘上[乘法反元素]。程式中使用 pow(val, -1, p) 來計算模反元素。
+- 步驟三:建構有限體並驗證公理
 ```python
-class Fin  iteField:
+class FiniteField:
     """有限體 GF(p)"""
     def __init__(self, p):
         if not is_prime(p):
@@ -217,6 +268,10 @@ class Fin  iteField:
             for c in self.add_elements
         )
 ```
+1. 加法群：檢查是否符合阿貝爾群(Abelian Group)的性質。
+2. 乘法群：檢查去除0之後的集合是否符合阿貝爾群性質。
+3. 分配律：連結加法與乘法的橋樑。 若全部回傳True，則證明是有限體
+
 ```python
 if __name__ == "__main__":
     # 安全讀取質數 p
@@ -284,7 +339,11 @@ if __name__ == "__main__":
         print("錯誤:", e)
     except Exception as e:
         print("未預期錯誤:", e)
-
-## [家庭作業 9 (資訊理論)]
+```
+1. 程式會先要求輸入質數p。
+2. 自動跑完所有公理驗證，確認數學性質成立。
+3. 使用者可輸入任意整數，程式會將其轉換為有限體元素並展示運算結果
+4. 驗證結果：顯示的運算結果完全符合模運算(Modular Arithmetic)的規則
+## [家庭作業 8 (資訊理論)]
 * 完成方法: 參考教授
 * 說明:
