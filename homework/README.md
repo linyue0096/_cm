@@ -143,7 +143,7 @@ roots= []
 ```
 -----------------------------------------------------
 ## [家庭作業 4 (請寫一個函數 root(c) 求出 n 次多項式的根)]
-* 完成方法:原創
+* 完成方法:原創(readme使用Gemini幫忙寫)
 * 這是利用 Python 的 numpy 函式庫實作同伴矩陣方法。此程式能求出任意 $n$ 次多項式 $P(x) = c_n x^n + \dots + c_1 x + c_0 = 0$ 的所有根（包含實根與複數根）。這是目前許多科學計算軟體計算多項式根的標準演算法
 先將方程式的領導係數 $a$ 化為 1。若 $a=0$ 則不是三次方程式，需拋出錯誤。
 
@@ -392,6 +392,311 @@ if __name__ == "__main__":
 2. 自動跑完所有公理驗證，確認數學性質成立。
 3. 使用者可輸入任意整數，程式會將其轉換為有限體元素並展示運算結果
 4. 驗證結果：顯示的運算結果完全符合模運算(Modular Arithmetic)的規則
+-----------------------------------------------------
+## [家庭作業 6 (幾何學：（點，線，圓）世界的建構)]
+* 完成方式:[Gemini](https://gemini.google.com/share/61bc6b22edf3)
+* 說明:定義基本的幾何圖形（點、線、圓、三角形）與計算它們的交點外，還實作了圖形的幾何變換。
+先將方程式的領導係數 $a$ 化為 1。若 $a=0$ 則不是三次方程式，需拋出錯誤。
+
+- 步驟一：幾何物件定義與數學模型
+1. 點: 平面座標系上的位置 $P(x, y)$。
+2. 直線: 使用一般式 $Ax + By + C = 0$ 表示。
+優點: 可以表示垂直線 ($x=k$, 即 $B=0$)，這是斜截式 ($y=mx+b$) 做不到的。
+3. 圓: 由圓心 $O(h, k)$ 與半徑 $r$ 定義，方程式為 $(x-h)^2 + (y-k)^2 = r^2$。
+4. 三角形: 由三個頂點 $P_1, P_2, P_3$ 組成的封閉圖形。
+
+- 步驟二: 交點計算原理
+1. 兩直線交點:求解二元一次聯立方程式
+* 克拉瑪法則 (Cramer's Rule)：
+$$D = A_1 B_2 - A_2 B_1$$$$x = \frac{B_1 C_2 - B_2 C_1}{D}, \quad y = \frac{C_1 A_2 - C_2 A_1}{D}$$
+若 $D=0$，則直線平行或重合
+2. 直線與圓交點:計算圓心到直線的垂直距離 $d = \frac{|Ax_0 + By_0 + C|}{\sqrt{A^2+B^2}}$。
+* 若 $d > r$: 不相交。
+* 若 $d = r$: 相切 (一點)。
+* 若 $d < r$: 交於兩點 (割線)。
+3. 兩圓交點:計算兩圓心距離 $d$。利用餘弦定理或幾何關係求出交點連線（根軸）的位置，再轉化為[直線與圓交點]
+--------------------------------------------------
+## [家庭作業 7 機率統計 - 檢定背後的數學原理]
+* 完成方式:[Gemini](https://gemini.google.com/share/70c6a8082e11)
+* 利用AI問答，理解z檢定與t檢定背後的數學原理(包含公式是如何推導出來的)
+* z-test
+單樣本 -- 在母體標準差和平均值已知的情況
+* t-test
+單樣本 -- 母體標準差未知，母體平均值已知
+雙樣本獨立 -- 兩組不同且獨立的樣本
+雙樣本配對 -- 同樣個體不同時間的樣本
+* 數學原理:
+$$t = \frac{\bar{X}_1 - \bar{X}_2}{S_p \sqrt{\frac{1}{n_1} + \frac{1}{n_2}}}$$
+* 分子 $(\bar{X}_1 - \bar{X}_2)$: 兩組間的實際差異。
+* 分母 $S_p \sqrt{\frac{1}{n_1} + \frac{1}{n_2}}$: 估計的標準誤 (Standard Error)，代表隨機抽樣下的預期波動。
+------------------------------------------------------------
 ## [家庭作業 8 (資訊理論)]
-* 完成方法: 參考教授
-* 說明:
+* 完成方式:[Gemini](https://gemini.google.com/share/1448ea73b408)
+* 夏農-哈特利定理和夏農信道編碼定理:[Readme](https://github.com/linyue0096/_cm/blob/5663b842f87aa053a9c1f3d637dc08a7a94dfbed/homework/Ch8%20%E8%B3%87%E8%A8%8A%E7%90%86%E8%AB%96/readme.md)
+1. 寫一個程式，計算一公平銅板，連續投擲 10000 次，全部得到正面的機率。 (p^10000)
+2. 寫另一個程式，用 log(p^n) = n log(p) 計算 log(p^n)，然後代入 p=0.5，算出 log(0.5^10000)
+3. 寫程式計算『熵，交叉熵，KL 散度，互熵（互資訊）』
+4. 寫程式驗證 cross_entropy(p,p) > cross_entropy(p,q), 當 q != p 時。
+5. 寫出 『7-4 漢明碼』的編碼與解碼程式
+- 驗證吉布斯不等式
+透過數值模擬驗證「交叉熵恆大於等於熵」，即 $H(P, Q) \ge H(P)$
+```python
+def verify_inequality():
+    # 設定真實分佈 P，並計算基準值 H(P)
+    self_entropy = cross_entropy(P, P)
+    
+    # 隨機生成多個 Q 分佈進行測試
+    for i in range(5):
+        # ... (生成隨機 Q) ...
+        ce_val = cross_entropy(P, Q)
+        is_greater = ce_val > self_entropy # 驗證 H(P,Q) > H(P)
+```
+在機器學習證明了為什麼我們要最小化 Cross-Entropy Loss。因為當 Loss 降到最低（等於 $H(P)$）時，代表我們的預測模型 $Q$ 已經完美逼近真實分佈 $P$（即 $D_{KL} \to 0$）
+
+- 通道編碼 - 漢明碼 (Hamming Code)
+資訊理論不僅討論資訊的度量，也討論如何在雜訊通道中可靠傳輸。
+```python
+class Hamming74:
+    def __init__(self):
+        # 生成矩陣 G [4x7] : 負責編碼
+        self.G = np.array([...]) 
+        # 校驗矩陣 H [3x7] : 負責偵錯
+        self.H = np.array([...])
+
+    def encode(self, d):
+        # c = d * G (mod 2)
+        return np.dot(d, self.G) % 2
+
+    def decode(self, r):
+        # 計算校驗子 (Syndrome): s = H * r^T
+        syndrome = np.dot(self.H, r) % 2
+```
+* 編碼效率:使用3個parity bits保護4個data bits，碼率 $R = 4/7$。
+* 校驗子 (Syndrome): $\mathbf{s} = \mathbf{H}\mathbf{r}^T = \mathbf{H}(\mathbf{c}+\mathbf{e})^T = \mathbf{H}\mathbf{e}^T$。
+* 因為 $\mathbf{H}$ 的每一行都是獨特的，所以算出的 $\mathbf{s}$ 可以唯一對應到錯誤向量 $\mathbf{e}$ 中的錯誤位置，實現 1 bit 的自動修正
+-------------------------------------------------------
+## [家庭作業 9 線性代數]
+* 完成方式(利用Gemini幫我寫數學原理):[Gemini](https://gemini.google.com/share/578c7a046eca)
+* 觀念題:[README](https://github.com/linyue0096/_cm/blob/5663b842f87aa053a9c1f3d637dc08a7a94dfbed/homework/Ch9%20%E7%B7%9A%E6%80%A7%E4%BB%A3%E6%95%B8/ReadMe.md)
+* 從零開始實作了線性代數中的核心演算法。內容涵蓋矩陣運算（行列式、反矩陣）、高效的矩陣分解（LU、SVD），以及資料科學中最重要的降維技術（PCA）
+
+- 步驟一：行列式與反矩陣
+* 遞迴行列式:利用拉普拉斯展開，將 $n \times n$ 矩陣拆解為多個 $(n-1) \times (n-1)$ 子矩陣的行列式和。
+$$\det(A) = \sum_{j=1}^{n} (-1)^{1+j} a_{1j} \det(M_{1j})$$
+* 伴隨矩陣法求反矩陣 (Inverse via Adjugate):若 $\det(A) \neq 0$，則：$$A^{-1} = \frac{1}{\det(A)} \text{adj}(A)$$
+```python
+def inverse(matrix):
+    det = determinant(matrix)
+    if det == 0: raise ValueError("Singular Matrix")
+    adjugate = transpose(cofactors)
+    return [[elem / det for elem in row] for row in adjugate]
+```
+- 步驟二: 矩陣分解 LU 分解
+1. Doolittle 演算法:逐步消除矩陣下方的元素，將其儲存在 $L$ 中，剩餘部分形成 $U$。
+2. 快速計算行列式:一旦分解完成，行列式即為 $U$ 矩陣對角線元素的乘積：$$\det(A) = \det(L) \cdot \det(U) = 1 \cdot \prod_{i=1}^{n} u_{ii}$$
+```python
+def determinant_via_lu(matrix):
+    L, U = lu_decomposition(matrix)
+    # 行列式 = U 的對角線乘積
+    det = 1.0
+    for i in range(len(U)):
+        det *= U[i][i]
+    return det
+```
+- 步驟三：奇異值分解
+線性代數的任意矩陣 $A$ 都可以分解為 $A = U \Sigma V^T$。這表示矩陣的幾何本質：旋轉 $\to$ 拉伸 $\to$ 旋轉
+* 數學原理
+我們利用特徵值分解來手動實作 SVD：
+1. 計算 $A^T A$: 這是一個對稱半正定矩陣。
+2. 求解特徵值: 對 $A^T A$ 進行特徵值分解，得到的特徵向量即為 $V$。
+3. 計算奇異值: $\sigma_i = \sqrt{\lambda_i}$，構成對角矩陣 $\Sigma$。
+4. 推導 $U$: 利用公式 $u_i = \frac{A v_i}{\sigma_i}$ 計算左奇異向量
+```python
+def svd_from_eigen(A):
+    ATA = A.T @ A
+    eigenvalues, V = np.linalg.eig(ATA)
+    singular_values = np.sqrt(eigenvalues)
+    U = (A @ V) / singular_values
+    return U, singular_values, V.T
+```
+
+- 步驟四：主成分分析
+資料科學中最重要的降維技術。透過 SVD 或特徵值分解找出資料變異量最大的方向
+* 數學原理
+1. 中心化 (Centering):將數據平移，使平均值為 0。
+2. 協方差矩陣 (Covariance Matrix):$$C = \frac{1}{n-1} X^T X$$
+3. 特徵分解: 計算 $C$ 的特徵向量。最大的特徵值對應的方向即為第一主成分 (PC1)。
+4. 投影 (Projection): 將原始數據 $X$ 投影到特徵向量上，完成降維。
+```python
+new_cov = np.cov(X_pca.T)
+off_diagonal = new_cov - np.diag(np.diagonal(new_cov))
+    
+if np.allclose(off_diagonal, 0):
+    print("✅ 驗算成功：新特徵之間已完全解耦")
+```
+--------------------------------------------------
+## [家庭作業 10 請寫出傅立葉正轉換和逆轉換的函數（不要用套件）]
+* 完成方式(利用Gemini幫我寫數學原理):[Gemini](https://gemini.google.com/share/8958e324d9b1)
+* 從零開始實作了線性代數中的核心演算法。內容涵蓋矩陣運算（行列式、反矩陣）、高效的矩陣分解（LU、SVD），以及資料科學中最重要的降維技術（PCA）
+
+- 步驟一：離散傅立葉轉換 (DFT)
+* 將離散的時域訊號 $x[n]$ 轉換為頻域訊號 $X[k]$。
+```python
+def dft(x: List[float]) -> List[Complex]:
+    # ...
+    coefficient = -2j * math.pi / N
+    for k in range(N):
+        # 核心數學式: X[k] = Σ x[n] * e^(-j * 2π * k * n / N)
+        value = sum(x[n] * cmath.exp(coefficient * k * n) for n in range(N))
+        X.append(value)
+    return X
+```
+* 數學原理:
+$$X[k] = \sum_{n=0}^{N-1} x[n] \cdot e^{-j \frac{2\pi}{N} k n}$$
+* 利用歐拉公式 
+$e^{-j\theta} = \cos\theta - j\sin\theta$，我們將時域訊號投影到一組正交的複數弦波基底上。
+* 複雜度: 雙重迴圈結構 (隱藏在 sum 與外層 loop)，時間複雜度為 $O(N^2)$。
+- 步驟二: 逆離散傅立葉轉換 (IDFT)
+將頻域訊號 $X[k]$ 還原回時域訊號 $x[n]$。
+```python
+def idft(X: List[Complex]) -> List[float]:
+    # ...
+    coefficient = 2j * math.pi / N  # 注意：指數為正
+    for n in range(N):
+        # 核心數學式: x[n] = (1/N) * Σ X[k] * e^(j * 2π * k * n / N)
+        value = sum(X[k] * cmath.exp(coefficient * k * n) for k in range(N))
+        x.append(value.real / N) # 取實部並正規化
+    return x
+```
+* 數學原理:
+$$x[n] = \frac{1}{N} \sum_{k=0}^{N-1} X[k] \cdot e^{j \frac{2\pi}{N} k n}$$
+* 正交歸一性: 逆轉換需要除以訊號長度 $N$ 進行正規化。
+* 實數還原: 理論上原始訊號若為實數，IDFT 計算結果的虛部應相互抵銷為 0。程式中直接取 .real 濾除極微小的浮點數誤差。
+- 步驟三：訊號生成與頻譜分析
+生成一個由不同頻率組成的合成波
+```python
+def generate_signal(N: int) -> List[float]:
+    # f(n) = 1.0*sin(2πn/N) + 0.5*cos(4πn/N)
+    # 對應頻率 k=1 (sin) 和 k=2 (cos)
+    return [...]
+```
+包含頻率 $k=1$ 的正弦波與 $k=2$ 的餘弦波
+- 步驟四:驗證結果
+資料科學中最重要的降維技術。透過 SVD 或特徵值分解找出資料變異量最大的方向
+```python
+magnitudes = [abs(val) for val in X]
+```
+* 程式成功透過 math.isclose 驗證了 $x[n] \approx \text{IDFT}(\text{DFT}(x[n]))$，證明手寫演算法正確無誤。
+------------------------------------------------------
+## [家庭作業 11 (資訊理論)]
+* 完成方法(Gemini幫我寫，並讓AI幫我說明):[Gemini](https://gemini.google.com/share/111fde1c9c43)
+* 微分方程的形式
+$$a_n y^{(n)} + a_{n-1} y^{(n-1)} + \dots + a_1 y' + a_0 y = 0$$
+
+``` python
+from ode_solver import solve_ode_general 
+coeffs = [1, -3, 2]
+solution = solve_ode_general(coeffs)
+
+print(f"係數: {coeffs}")
+print(f"通解: {solution}")
+# 輸出: y(x) = C_1e^(2.0x) + C_2e^(1.0x)
+```
+### 演算法邏輯
+由於電腦數值計算存在浮點數誤差，以採用了以下步驟來確保結果的數學正確性：
+1. 求根 (Root Finding)：使用 numpy.roots 求解特徵多項式。
+2. 數據清洗:
+* 將根的實部與虛部四捨五入至小數點後 5 位。
+* 去除極小的虛部雜訊（強制轉換為純實數）。
+* 此步驟確保了「重根」能被正確識別，而不是被誤判為兩個極為接近的相異根。
+3. 根的分類:使用Counter統計根的重數。
+4. 字串生成:若為實根 $r$ (重數 $m$)：生成 $C e^{rx}, C x e^{rx}, \dots$若為複數根 $\alpha \pm i\beta$ (重數 $m$):生成 $e^{\alpha x}\cos(\beta x), e^{\alpha x}\sin(\beta x)$ 及其對應的 $x$ 乘積項。
+
+### 求解特徵方程
+``` python
+def solve_ode_general(coefficients):
+    # 利用 numpy 找出特徵方程式 P(r) = 0 的所有根
+    roots = np.roots(coefficients)
+
+```
+* 邏輯:對應數學步驟的第一步。
+* 數學意義：將微分方程 $a_n y^{(n)} + \dots + a_0 y = 0$ 轉為特徵方程 $a_n r^n + \dots + a_0 = 0$ 並求解 $r$。
+
+### 數據清洗
+``` python
+cleaned_roots = []
+    tolerance = 5  # 設定精確度: 小數點後 5 位
+    
+    for r in roots:
+        # 1. 四捨五入: 強制將 1.9999999 轉回 2.0
+        real_part = round(r.real, tolerance)
+        imag_part = round(r.imag, tolerance)
+        
+        # 2. 濾除雜訊: 如果虛部極小 (例如 1e-15)，強制設為 0
+        if abs(imag_part) == 0.0:
+            cleaned_roots.append(complex(real_part, 0))
+        else:
+            cleaned_roots.append(complex(real_part, imag_part))
+
+```
+* 為什麼要這樣做？ 電腦在計算浮點數時不精確
+* 如果不清洗，程式會誤判為「兩個不同的實根」，導致錯誤的通解。所以透過 round 統一數值，確保重根能被正確識別。
+
+### 統計重數與排序
+``` python
+
+root_counts = Counter(cleaned_roots)
+    
+    
+sorted_unique_roots = sorted(
+    root_counts.keys(), 
+    key=lambda x: (abs(x.imag) > 0, x.real, x.imag)
+)
+
+```
+* Counter:如果根是 [2.0, 2.0]，Counter 會回傳 {2.0: 2}，告訴我們 $r=2$ 是二重根 ($m=2$)。
+* sorted:為了讓輸出的數學式美觀，我們自訂排序規則，讓實數解排在複數解前面。
+
+### 生成通解字串
+1. 變數
+``` python
+terms = []
+    c_index = 1 
+    processed_conjugates = set()
+```
+
+2. 實數根處理
+``` python
+if r.imag == 0:
+    alpha = r.real
+    for k in range(m):
+        term = f"C_{c_index}{x_str}{exp_str}"
+        terms.append(term)
+        c_index += 1
+```
+
+2. 複數根處理
+``` python
+else:
+     if r in processed_conjugates: continue
+    processed_conjugates.add(r)
+    processed_conjugates.add(r.conjugate())
+    for k in range(m):
+        term1 = f"C_{c_index}{x_str}{exp_str}{cos_str}"
+        c_index += 1
+        term2 = f"C_{c_index}{x_str}{exp_str}{sin_str}"
+                c_index += 1
+                
+        terms.append(term1)
+        terms.append(term2)
+```
+* 當根為複數 ($\alpha \pm i\beta$) 時，通解形式為 $e^{\alpha x}(C_1 \cos \beta x + C_2 \sin \beta x)$。
+* 邏輯:複數根總是成對出現。我們使用 processed_conjugates 來確保不會對同一對根輸出兩次解
+
+### 組合最終結果
+``` python
+    result = " + ".join(terms)
+    result = result.replace("+ -", "- ")
+    
+    return f"y(x) = {result}"
+```
